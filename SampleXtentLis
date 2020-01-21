@@ -1,0 +1,416 @@
+
+//EEEEEEEEEEEEE      extentspace  ExtentListners  EEEEEEEEEEEEEEEEEE
+//----------------------------------------------------------------------------------------
+package extentspace;
+
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.MediaEntityBuilder;
+import com.aventstack.extentreports.Status;
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.testng.ITestContext;
+import org.testng.ITestListener;
+import org.testng.ITestResult;
+
+import java.io.File;
+import java.io.IOException;
+import java.security.PrivateKey;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class ExtentListners implements ITestListener {
+
+    static Date repDate = new Date();
+    static String repFileName = "ExecutionReport_" + repDate.toString().replace(":", "_").replace(" ", "_") + ".html" ;
+    private static ExtentReports extent = ExtentManager.initializeExtent(System.getProperty("user.dir") + File.separator + "reports" + File.separator + repFileName);
+    //public static ThreadLocal<ExtentTest> testReport = new ThreadLocal<ExtentTest>();
+   // private static ThreadLocal<ExtentTest> test = new ThreadLocal<ExtentTest>();
+    private ExtentTest test ;
+
+    WebDriver driver;
+
+    public void onTestStart(ITestResult result) {
+       /* ExtentTest extentTest = extent.createTest(result.getTestClass().getName() + "  METHOD_" + result.getMethod().getMethodName() );
+        test.set(extentTest);*/
+        System.out.println("repFileName ----> " + repFileName);
+        test = extent.createTest(result.getTestClass().getName() + "  METHOD_" + result.getMethod().getMethodName() );
+    }
+
+    public void onTestSuccess(ITestResult result) {
+        //nn test.log(Status.PASS, "STATUS: PASSED") ; //  IS " + result.getName());
+        //test.get().pass("STATUS: PASSED");
+        test.log(Status.PASS, "STATUS: PASSED " );
+    }
+
+    public void onTestFailure (ITestResult result) {
+        driver = (WebDriver) result.getTestContext().getAttribute("driver"); // accessing driver here
+        String feature = getClass().getName();
+
+        if(driver !=null) {
+            try {
+                String screenShot = ExtentListners.getScreenshot(driver, result.getName());
+                System.out.println("screenShot ===>  " + screenShot);
+                test.log(Status.FAIL, "STATUS: FAILED -  EXCEPTION:" + result.getThrowable().getMessage(), MediaEntityBuilder.createScreenCaptureFromPath(screenShot).build());
+            } catch (IOException ex) {
+                System.out.println("----------- EXCEPTION!! ---------------");
+            }
+        }else{
+            test.log(Status.FAIL, "STATUS: FAILED -  EXCEPTION:" + result.getThrowable().getMessage());
+        }
+    }
+
+    public void onTestSkipped (ITestResult result) {
+        //nn test.log(Status.SKIP, "STATUS: SKIPPED") ; //  IS " + result.getName());
+        //pp test.get().skip("STATUS: SKIPPED" );
+        test.log(Status.SKIP, "STATUS: SKIPPED " );
+    }
+
+    public void onFinish (ITestContext context) {
+        if(driver !=null) {
+            driver.close();
+        }
+        if(extent != null){
+            extent.flush();
+        }
+    }
+
+    public static String getScreenshot(WebDriver driver, String screenshotName) throws IOException {
+        String dateName = new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
+        TakesScreenshot ts = (TakesScreenshot) driver;
+        File source = ts.getScreenshotAs(OutputType.FILE);
+        System.out.println("USR_DR ---> " +  System.getProperty("user.dir"));
+        String destination = System.getProperty("user.dir") + "/Screenshots/" + screenshotName + dateName + ".png";
+        File finalDestination = new File(destination);
+        FileUtils.copyFile(source, finalDestination);
+        return destination;
+    }
+
+}
+
+
+
+//  --------------- MMMMMMMMMMMMMMMMMM   extentspace  ExtentManager------------------------------------
+package extentspace;
+
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
+import com.aventstack.extentreports.reporter.configuration.Theme;
+
+public class ExtentManager {
+
+    private static ExtentReports extent;
+
+    public static ExtentReports initializeExtent(String repFileName){
+        ExtentHtmlReporter htmlReporter = new ExtentHtmlReporter(repFileName);
+        //System defined Configs
+        htmlReporter.config().setDocumentTitle("Automation Report"); // Tile of report
+        htmlReporter.config().setReportName("Functional Testing"); // Name of the report
+        htmlReporter.config().setTheme(Theme.DARK);
+        htmlReporter.config().setEncoding("utf-8");
+        extent = new ExtentReports();
+        extent.attachReporter(htmlReporter);
+        //User defined Configs
+        extent.setSystemInfo("Host Name", "localhost");
+        extent.setSystemInfo("Execution Environment", "DEV-AUTOMATION");
+        extent.setSystemInfo("Release/Build", "2.6.1");
+        extent.setSystemInfo("User", "DJ SMOOTH");
+        extent.setSystemInfo("Automation Development Team", "CodeBlaze");
+        return extent;
+    }
+}
+
+
+// --------------------    extentspace    LocalWebDriverInitializer ----------------------------------
+package extentspace;
+
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
+import com.aventstack.extentreports.reporter.configuration.Theme;
+
+public class ExtentManager {
+
+    private static ExtentReports extent;
+
+    public static ExtentReports initializeExtent(String repFileName){
+        ExtentHtmlReporter htmlReporter = new ExtentHtmlReporter(repFileName);
+        //System defined Configs
+        htmlReporter.config().setDocumentTitle("Automation Report"); // Tile of report
+        htmlReporter.config().setReportName("Functional Testing"); // Name of the report
+        htmlReporter.config().setTheme(Theme.DARK);
+        htmlReporter.config().setEncoding("utf-8");
+        extent = new ExtentReports();
+        extent.attachReporter(htmlReporter);
+        //User defined Configs
+        extent.setSystemInfo("Host Name", "localhost");
+        extent.setSystemInfo("Execution Environment", "DEV-AUTOMATION");
+        extent.setSystemInfo("Release/Build", "2.6.1");
+        extent.setSystemInfo("User", "DJ SMOOTH");
+        extent.setSystemInfo("Automation Development Team", "CodeBlaze");
+        return extent;
+    }
+}
+
+
+
+//---------  gt -  repsolutions -- src -- test -- java  -- extentsampletests  ---------
+
+//  -------------------------------------  SampleTestsL  -------------------
+package extentsampletests;
+
+import extentspace.ExtentListners;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.testng.Assert;
+import org.testng.ITestContext;
+import org.testng.annotations.*;
+import extentspace.LocalWebDriverInitializer;
+
+import java.io.IOException;
+
+@Listeners(ExtentListners.class)
+public class SampleTestsL {
+
+    public WebDriver driver;
+
+    @BeforeTest
+    public WebDriver setup(ITestContext iTestContext) {
+        LocalWebDriverInitializer localWebDriverInit = new LocalWebDriverInitializer();
+        driver = localWebDriverInit.initializeLocalWebDriver() ;
+        iTestContext  = LocalWebDriverInitializer.setContext(iTestContext, driver);  // setting the driver into context. Needed for ScreenShots
+        return driver;
+    }
+
+    @Test
+    public  void test1() {
+        int i = 5;
+        Assert.assertEquals(i, 5);
+    }
+
+    @Test(groups = { "tagName", "t:another-tagName", "a:authorName", "d:deviceName" })
+    public void test2() {
+        Assert.assertTrue(true);
+    }
+
+    @Test(groups = { "tagName", "tag:another-tagName", "author:authorName", "device:deviceName" })
+    public void test3() {
+        Assert.assertTrue(false);
+    }
+
+    @Test
+    public void noCommerceTitleTest() {
+        driver.get("http://demo.nopcommerce.com/");
+        String title = driver.getTitle();
+        System.out.println(title);
+        Assert.assertEquals(title, "eCommerce demo store");
+    }
+
+    @Test
+    public void noCommerceLogoTest() {
+        driver.get("http://demo.nopcommerce.com/");
+        boolean b = driver.findElement(By.xpath("//img[@alt='nopCommerce demo store']")).isDisplayed();
+        Assert.assertTrue(b);
+    }
+
+    @AfterTest()
+    public void tearDown() throws IOException {
+    }
+
+    }
+
+
+//----------------------------------    MySampleTests2 -------------------------------- 
+package extentsampletests;
+
+import com.aventstack.extentreports.ExtentReports;
+import com.aventstack.extentreports.ExtentTest;
+import com.aventstack.extentreports.MediaEntityBuilder;
+import com.aventstack.extentreports.Status;
+import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
+import com.aventstack.extentreports.reporter.configuration.Theme;
+import org.apache.commons.io.FileUtils;
+import org.openqa.selenium.By;
+import org.openqa.selenium.OutputType;
+import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.Assert;
+import org.testng.ITestResult;
+import org.testng.annotations.*;
+import org.testng.asserts.SoftAssert;
+
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+
+public class MySampleTests2 {
+        //Extent Objects needed
+        public ExtentHtmlReporter htmlReporter;
+        public ExtentReports extent;
+        public ExtentTest test;
+
+        public WebDriver driver;
+
+        @BeforeTest
+        public void setExtent() {
+            // specify location of the report
+            htmlReporter = new ExtentHtmlReporter(System.getProperty("user.dir") + "/test-output/myReport.html");
+
+            htmlReporter.config().setDocumentTitle("Automation Report"); // Tile of report
+            htmlReporter.config().setReportName("Functional Testing"); // Name of the report
+            htmlReporter.config().setTheme(Theme.DARK);
+
+            extent = new ExtentReports();
+            extent.attachReporter(htmlReporter);
+
+            // Passing General information
+            extent.setSystemInfo("Host name", "localhost");
+            extent.setSystemInfo("Environemnt", "QA-AUTOMATION");
+            extent.setSystemInfo("user", "DJ SMOOTH");
+
+            // allow automatic saving of media files relative to the report
+            //htmlReporter.config().setAutoCreateRelativePathMedia(true);
+        }
+
+        @AfterTest
+        public void endReport() {
+            extent.flush();
+        }
+
+        @BeforeMethod
+        public void setup() {
+            System.setProperty("webdriver.chrome.driver", "C://Drivers/chromedriver_win32/chromedriver.exe");
+            driver = new ChromeDriver();
+            driver.manage().window().maximize();
+            driver.get("http://demo.nopcommerce.com/");
+        }
+
+        @Test
+        public  void test1() {
+           //--- test = extent.createTest("T1");
+            int i = 3;
+            Assert.assertEquals(i, 5);
+        }
+
+        @Test(groups = { "tagName", "t:another-tagName", "a:authorName", "d:deviceName" })
+        public void test2() {
+            //--- test = extent.createTest("T2");
+            Assert.assertTrue(true);
+        }
+
+        @Test(groups = { "tagName", "tag:another-tagName", "author:authorName", "device:deviceName" })
+        public void test3() {
+            //--- test = extent.createTest("T3");
+            Assert.assertTrue(false);
+        }
+
+        @Test
+        public void noCommerceTitleTest() {
+            //--- test = extent.createTest("noCommerceTitleTest");
+            String title = driver.getTitle();
+            System.out.println(title);
+            Assert.assertEquals(title, "eCommerce demo store");
+        }
+
+        //Test2
+        @Test
+        public void noCommerceLogoTest() {
+            //--- test = extent.createTest("noCommerceLogoTest");
+            boolean b = driver.findElement(By.xpath("//img[@alt='nopCommerce demo store']")).isDisplayed();
+            Assert.assertTrue(b);
+        }
+
+        //Test3
+        @Test
+        public void noCommerceLoginTest() {
+            //--- test = extent.createTest("noCommerceLoginTest");
+            test.createNode("Login with Valid input");
+            Assert.assertTrue(true);
+            test.createNode("Login with In-valid input");
+            Assert.assertTrue(true);
+        }
+
+        @AfterMethod
+        public void tearDown(ITestResult result) throws IOException {
+            if (result.getStatus() == ITestResult.FAILURE) {
+                String screenshotPath = MySampleTests2.getScreenshot(driver, result.getName());
+               /* test.log(Status.FAIL, "TEST CASE FAILED IS " + result.getName()); // to add name in extent report
+                test.log(Status.FAIL, "TEST CASE FAILED IS "  + result.getName() + "    EXCEPTION:  " + result.getThrowable()); // to add error/exception in extent report
+                System.out.println("SCREENSHOT FULL PATH---> " + screenshotPath);
+                test.addScreenCaptureFromPath(screenshotPath);// adding screen shot*/
+                /* String screenshotPath = MySampleTests2.getScreenshot(driver, result.getName());
+                test.addScreenCaptureFromPath(screenshotPath);// adding screen shot*/
+                test.log(Status.FAIL, "STATUS: FAILED -  EXCEPTION:" + result.getThrowable().getMessage(), MediaEntityBuilder.createScreenCaptureFromPath(screenshotPath).build());
+
+            } else if (result.getStatus() == ITestResult.SKIP) {
+                test.log(Status.SKIP, "STATUS: SKIPPED" );  //  IS " + result.getName());
+            }
+            else if (result.getStatus() == ITestResult.SUCCESS) {
+                test.log(Status.PASS, "STATUS: PASSED") ; //  IS " + result.getName());
+            }
+            extent.flush();
+            driver.quit();
+        }
+
+        public static String getScreenshot(WebDriver driver, String screenshotName) throws IOException {
+            String dateName = new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
+            TakesScreenshot ts = (TakesScreenshot) driver;
+            File source = ts.getScreenshotAs(OutputType.FILE);
+
+            System.out.println("USR_DR ---> " +  System.getProperty("user.dir"));
+            // after execution, you could see a folder "FailedTestsScreenshots" under src folder
+            String destination = System.getProperty("user.dir") + "/Screenshots/" + screenshotName + dateName + ".png";
+            File finalDestination = new File(destination);
+            FileUtils.copyFile(source, finalDestination);
+            return destination;
+        }
+    }
+
+
+//--------------------------------------  MySampleTests1 ---------------------- 
+package extentsampletests;
+
+import extentspace.ExtentListners;
+import org.openqa.selenium.WebDriver;
+import org.testng.Assert;
+import org.testng.ITestContext;
+import org.testng.annotations.Listeners;
+import org.testng.annotations.Test;
+import extentspace.LocalWebDriverInitializer;
+//import com.aventstack.extentreports.adapter.* ;
+
+@Listeners(ExtentListners.class)
+public class MySampleTests1 {
+
+    //@BeforeTest
+    public WebDriver setup(ITestContext iTestContext) {
+        LocalWebDriverInitializer localWebDriverInit = new LocalWebDriverInitializer();
+        WebDriver driver = localWebDriverInit.initializeLocalWebDriver();;
+        iTestContext  = LocalWebDriverInitializer.setContext(iTestContext, driver);  // setting the driver into context
+        return driver;
+    }
+
+    @Test(groups = { "tagName", "t:another-tagName", "a:authorName", "d:deviceName" })
+    public void test1() {
+        int i = 5;
+        Assert.assertEquals(i, 5);
+    }
+
+    @Test(groups = { "tagName", "t:another-tagName", "a:authorName", "d:deviceName" })
+    public void test2() {
+        Assert.assertTrue(true);
+    }
+
+    @Test(groups = { "tagName", "tag:another-tagName", "author:authorName", "device:deviceName" })
+    public void test3() {
+        Assert.assertTrue(false);
+    }
+
+
+}
+
+//----------------------------------------------------------- E -----------------------------------
