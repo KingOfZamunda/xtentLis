@@ -414,3 +414,105 @@ public class MySampleTests1 {
 }
 
 //----------------------------------------------------------- E -----------------------------------
+
+
+//PPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPPP
+
+//--------------------------- LWD ----------------
+package extentspace;
+
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.testng.ITestContext;
+
+public class LocalWebDriverInitializer {
+    private WebDriver driver ;
+
+    public  WebDriver initializeLocalWebDriver() {
+        System.setProperty("webdriver.chrome.driver", "C://Drivers/chromedriver_win32/chromedriver.exe");
+        driver = new ChromeDriver();
+        driver.manage().window().maximize();
+        return driver;
+    }
+
+    public static ITestContext setContext(ITestContext iTestContext, WebDriver driver) {
+        iTestContext.setAttribute("driver", driver);
+        return iTestContext;
+    }
+}
+
+
+//--------------------- TNG------------------------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="All Test Suite">
+    <listeners>
+        <listener class-name="extentspace.ExtentListners"/>
+    </listeners>
+
+    <test verbose="2" preserve-order="true" name="C:/git/repsolutions/src/main/resources">
+        <groups>
+          <!--  <run>
+                <exclude name="brokenTests"  />
+                <include name="checkinTests"  />
+            </run>-->
+        </groups>
+        <classes>
+            <class name="extentsampletests.SampleTestsL"/>
+            <class name="extentsampletests.MySampleTests1"/>
+               <!-- <methods>
+                    <include name="testMethod" />
+                </methods>-->
+        </classes>
+    </test>
+</suite>
+
+//----------------------------- PM --- X 4.1------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.codeblaze.automation</groupId>
+    <artifactId>repsolutions</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/com.aventstack/extentreports -->
+        <dependency>
+            <groupId>com.aventstack</groupId>
+            <artifactId>extentreports</artifactId>
+            <version>4.1.1</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.testng/testng -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>7.1.0</version>
+           <!-- <scope>test</scope>-->
+        </dependency>
+
+
+        <!-- https://mvnrepository.com/artifact/org.seleniumhq.selenium/selenium-java -->
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-java</artifactId>
+            <version>3.14.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.directory.studio/org.apache.commons.io -->
+        <dependency>
+            <groupId>org.apache.directory.studio</groupId>
+            <artifactId>org.apache.commons.io</artifactId>
+            <version>2.4</version>
+        </dependency>
+
+
+    </dependencies>
+
+
+</project>
+
+//-- ----------------------------------------
+
